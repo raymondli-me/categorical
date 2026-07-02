@@ -219,6 +219,16 @@ mca_ellipses <- function(fit, dims = c(1,2), topk = NULL, B = 2000, seed = 2026)
 }
 
 # ------------------------------------------------------------- enriched masters
+# the final analytical dataset actually fitted (post clean/dedup/specific-MCA),
+# one row per segment, with its cluster assignment appended.
+mca_dataset <- function(fit) {
+  df <- as.data.frame(fit$data, check.names = FALSE)
+  df$cluster <- as.character(fit$clusters)
+  if (!is.null(fit$cluster_pretty))
+    df$cluster_label <- unname(fit$cluster_pretty[as.character(fit$clusters)])
+  df
+}
+
 mca_master <- function(fit) {
   m <- fit$master; Z <- fit$Z; cats <- m$category; variable <- sub("=.*", "", cats)
   vtot <- ave(m$count, variable, FUN = sum)
