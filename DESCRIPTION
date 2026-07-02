@@ -1,0 +1,18 @@
+Package: categorical
+Type: Package
+Title: Lightweight Specific MCA + HCPC with Geometric Data Analysis
+Version: 0.1.0
+Authors@R: person("Raymond", "Li", role = c("aut", "cre"),
+    email = "91818244+raymondli-me@users.noreply.github.com")
+Description: Base-R specific Multiple Correspondence Analysis with HCPC clustering,
+    Benzecri correction, Haberman adjusted residuals, geometric typicality tests,
+    correlation-ratio (eta^2) permutation tests, bootstrap confidence ellipses
+    (centroid or top-k signature), content-based cluster labelling, enriched master
+    tables, configurable base-graphics maps, and an optional FactoMineR cross-check.
+    No dependencies for the statistics.
+License: MIT + file LICENSE
+Encoding: UTF-8
+Suggests: FactoMineR
+RoxygenNote: 7.3.1
+URL: https://github.com/raymondli-me/categorical
+BugReports: https://github.com/raymondli-me/categorical/issues

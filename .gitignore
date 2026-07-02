@@ -1,0 +1,19 @@
+# R
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+*.Rproj
+# data / outputs / secrets — never publish
+*.csv
+*.tsv
+*.xlsx
+*.xls
+*.rds
+*.RData
+*.pdf
+*.png
+.Renviron
+.env
+*.key
+*_secret*
