@@ -383,7 +383,9 @@ mca_export_fig3d <- function(fit, dir = ".", B = 400, seed = 2026) {
   write.csv(data.frame(name=catnm, d1=G[,1], d2=G[,2], d3=G[,3], clu=defclu, is_top=is_top),
     file.path(dir,"fig3d_cat.csv"), row.names=FALSE)
   write.csv(data.frame(dim=1:3, benz=fit$inertia$pct_benzecri[1:3]), file.path(dir,"fig3d_meta.csv"), row.names=FALSE)
-  files <- c("fig3d_seg.csv","fig3d_cat.csv","fig3d_meta.csv")
+  write.csv(data.frame(clu=seq_along(levels(fit$clusters))-1L, cluster=levels(fit$clusters),
+    label=unname(fit$cluster_pretty[levels(fit$clusters)])), file.path(dir,"fig3d_labels.csv"), row.names=FALSE)
+  files <- c("fig3d_seg.csv","fig3d_cat.csv","fig3d_meta.csv","fig3d_labels.csv")
   if (!is.null(fit$group)) {                                   # period/signature files only when a grouping exists
     nk <- fit$count; n <- fit$n; Z <- fit$Z; gs <- sort(unique(fit$group))
     sigloc <- function(p) { res <- mca_residuals(fit,"group")[, p]; o <- order(res, decreasing=TRUE)[1:5]
