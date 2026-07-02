@@ -219,6 +219,30 @@ mca_ellipses <- function(fit, dims = c(1,2), topk = NULL, B = 2000, seed = 2026)
 }
 
 # ------------------------------------------------------------- enriched masters
+# project EXCLUDED (non-active) variables as SUPPLEMENTARY points: their categories
+# get coordinates on the retained axes (barycenter of the individuals possessing them,
+# G_sup = mean(F)/sqrt(lambda)) WITHOUT shaping the axes, plus a typicality Z.
+# vars = NULL auto-detects character columns in fit$data that are not active/metadata.
+mca_supplementary <- function(fit, vars = NULL) {
+  Fi <- fit$row_coords; N <- fit$n; lam <- fit$lam; nd <- fit$ndim
+  meta <- c("_sheet", "SEGMENT", "Publication Year", "period", "cluster", "cluster_label", "seg_id")
+  if (is.null(vars)) {
+    cand <- setdiff(names(fit$data), c(fit$active, meta, fit$call$group))
+    vars <- cand[vapply(cand, function(v) is.character(fit$data[[v]]) || is.factor(fit$data[[v]]), logical(1))]
+  }
+  if (!length(vars)) return(NULL)
+  do.call(rbind, lapply(vars, function(v) {
+    vals <- as.character(fit$data[[v]]); lv <- sort(unique(vals[!is.na(vals) & vals != ""]))
+    do.call(rbind, lapply(lv, function(L) {
+      ix <- which(vals == L); nk <- length(ix)
+      co <- vapply(seq_len(nd), function(d) mean(Fi[ix, d]) / sqrt(lam[d]), numeric(1))
+      z  <- vapply(seq_len(nd), function(d) mean(Fi[ix, d]) / sqrt((N - nk) / (nk * (N - 1)) * lam[d]), numeric(1))
+      out <- data.frame(variable = v, category = L, n = nk, check.names = FALSE, row.names = NULL)
+      out[paste0("coord_D", seq_len(nd))] <- round(co, 3)
+      out[paste0("Z_D",     seq_len(nd))] <- round(z, 2)
+      out })) }))
+}
+
 # the final analytical dataset actually fitted (post clean/dedup/specific-MCA),
 # one row per segment, with its cluster assignment appended.
 mca_dataset <- function(fit) {
