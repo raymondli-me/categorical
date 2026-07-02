@@ -396,3 +396,33 @@ mca_export_fig3d <- function(fit, dir = ".", B = 400, seed = 2026) {
   }
   invisible(file.path(dir, files))
 }
+
+#' Frequency of coded categories by the supplementary grouping (e.g. period).
+#'
+#' For each active variable, the distribution of each group's segments across that
+#' variable's categories -- i.e. column percentages that sum to 100 within each group
+#' (the "frequency trends" descriptives). Returns a named list of category-by-group
+#' tables, or one long data.frame (Variable, Category, one column per group) if long=TRUE.
+#'
+#' @param fit   an mca_fit with a `group`.
+#' @param vars  active variables to tabulate (default all).
+#' @param pct   percentages (default) or raw counts.
+#' @param digits rounding for percentages.
+#' @param long  TRUE -> a single tidy data.frame suitable for a table.
+#' @export
+mca_frequencies <- function(fit, vars = fit$active, pct = TRUE, digits = 0, long = FALSE) {
+  if (is.null(fit$group)) stop("no grouping available (fit was built without `group`)")
+  g <- factor(fit$group)
+  tabs <- lapply(vars, function(v) {
+    tb <- table(category = as.character(fit$data[[v]]), group = g)
+    if (pct) tb <- sweep(tb, 2, colSums(tb), "/") * 100
+    round(tb, digits)
+  })
+  names(tabs) <- vars
+  if (!long) return(tabs)
+  do.call(rbind, lapply(vars, function(v) {
+    tb <- tabs[[v]]
+    data.frame(Variable = v, Category = rownames(tb), as.data.frame.matrix(tb),
+               check.names = FALSE, row.names = NULL)
+  }))
+}
