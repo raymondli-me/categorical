@@ -67,8 +67,13 @@ mca_run <- function(data, active, group = NULL, min_n = 0, k = 4, ndim = 3,
     colnames(m) <- lv; rownames(m) <- colnames(Z); m }
 
   W <- Fc[, 1:ndim, drop = FALSE]; set.seed(seed)
-  cl <- cutree(hclust(dist(W), "ward.D2"), k)
-  cl <- kmeans(W, t(sapply(1:k, function(g) colMeans(W[cl == g, , drop = FALSE]))))$cluster
+  cl_ward <- cutree(hclust(dist(W), "ward.D2"), k)                # Ward partition (k-means init)
+  km <- kmeans(W, t(sapply(1:k, function(g) colMeans(W[cl_ward == g, , drop = FALSE]))))  # Hartigan-Wong
+  cl <- km$cluster
+  km_info <- list(algorithm = "Hartigan-Wong", init = "Ward centroids",
+                  iterations = km$iter, converged = isTRUE(km$ifault == 0),
+                  reassigned = sum(km$cluster != cl_ward), n = length(cl),
+                  between_pct = round(100 * km$betweenss / km$totss, 1))
 
   if (!is.null(cluster_labels)) {
     vt0 <- residf(cl, TRUE); colnames(vt0) <- paste0("k", colnames(vt0))
@@ -118,7 +123,8 @@ mca_run <- function(data, active, group = NULL, min_n = 0, k = 4, ndim = 3,
     coords = G, row_coords = Fc, lam = lam, mass = cm, rmass = r, Ntot = Ntot, count = nk,
     ctr = ctr, cos2 = cos2, Z = Z, data = fin, active = active, group = grpv,
     clusters = clC, cluster_pretty = pretty, ndim = ndim,
-    inertia = inertia, master = master, between_inertia = round(bpct(clC), 1), gain_tab = gain_tab
+    inertia = inertia, master = master, between_inertia = round(bpct(clC), 1), gain_tab = gain_tab,
+    kmeans = km_info
   ), class = "mca_fit")
 }
 
@@ -241,6 +247,18 @@ mca_supplementary <- function(fit, vars = NULL) {
       out[paste0("coord_D", seq_len(nd))] <- round(co, 3)
       out[paste0("Z_D",     seq_len(nd))] <- round(z, 2)
       out })) }))
+}
+
+# k-means consolidation convergence report (as a small key/value table).
+mca_kmeans_info <- function(fit) {
+  k <- fit$kmeans
+  if (is.null(k)) return(NULL)
+  data.frame(Setting = c("Algorithm", "Initialization", "Iterations to converge", "Converged cleanly",
+                         "Segments reassigned vs Ward", "Reassigned (%)", "Between-cluster inertia (%)"),
+             Value = c(k$algorithm, k$init, as.character(k$iterations), if (k$converged) "yes" else "no",
+                       sprintf("%d of %d", k$reassigned, k$n),
+                       sprintf("%.1f", 100 * k$reassigned / k$n), sprintf("%.1f", k$between_pct)),
+             check.names = FALSE, row.names = NULL)
 }
 
 # the final analytical dataset actually fitted (post clean/dedup/specific-MCA),
