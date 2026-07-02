@@ -20,8 +20,14 @@
 #' @param seed      RNG seed.
 #' @return object of class "mca_fit".
 mca_run <- function(data, active, group = NULL, min_n = 0, k = 4, ndim = 3,
-                    vocab = NULL, cluster_labels = NULL, anchors = NULL, dedup = FALSE, seed = 2026) {
+                    vocab = NULL, cluster_labels = NULL, anchors = NULL, dedup = FALSE,
+                    seed = 2026, preset = NULL) {
   stopifnot(is.data.frame(data), all(active %in% names(data)))
+  if (!is.null(preset)) {                       # a preset bundles vocab/labels/anchors; explicit args win
+    if (is.null(vocab))          vocab          <- preset$vocab
+    if (is.null(cluster_labels)) cluster_labels <- preset$cluster_labels
+    if (is.null(anchors))        anchors        <- preset$anchors
+  }
   set.seed(seed)
   fin <- as.data.frame(data, stringsAsFactors = FALSE)
   if (dedup) fin <- fin[!duplicated(fin), , drop = FALSE]
