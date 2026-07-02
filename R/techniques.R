@@ -13,31 +13,31 @@ rf <- function(key, loc = "", aspect = "") list(key = key, loc = loc, aspect = a
   abdi2007   = list(cite="Abdi & Valentin, 2007", apa="Abdi, H., & Valentin, D. (2007). Multiple correspondence analysis. In N. Salkind (Ed.), Encyclopedia of measurement and statistics. Sage.",
                     bib="@incollection{abdi2007,author={Abdi, Herv\\'e and Valentin, Dominique},title={Multiple Correspondence Analysis},booktitle={Encyclopedia of Measurement and Statistics},editor={Salkind, Neil},publisher={Sage},year={2007}}"),
   leroux2010 = list(cite="Le Roux & Rouanet, 2010", apa="Le Roux, B., & Rouanet, H. (2010). Multiple correspondence analysis. SAGE. https://doi.org/10.4135/9781412993906",
-                    bib="@book{leroux2010,author={Le Roux, Brigitte and Rouanet, Henry},title={Multiple Correspondence Analysis},publisher={SAGE},year={2010},doi={10.4135/9781412993906}}"),
+                    bib="@book{leroux2010,author={Le Roux, Brigitte and Rouanet, Henry},title={Multiple Correspondence Analysis},publisher={SAGE},year={2010},doi={10.4135/9781412993906}}", url="https://doi.org/10.4135/9781412993906"),
   greenacre2006 = list(cite="Greenacre & Blasius, 2006", apa="Greenacre, M., & Blasius, J. (Eds.). (2006). Multiple correspondence analysis and related methods. Chapman & Hall/CRC.",
                     bib="@book{greenacre2006,editor={Greenacre, Michael and Blasius, J\\\"org},title={Multiple Correspondence Analysis and Related Methods},publisher={Chapman \\& Hall/CRC},year={2006}}"),
   husson2017 = list(cite="Husson et al., 2017", apa="Husson, F., Lê, S., & Pagès, J. (2017). Exploratory multivariate analysis by example using R (2nd ed.). CRC Press.",
                     bib="@book{husson2017,author={Husson, Fran\\c{c}ois and L\\^e, S\\'ebastien and Pag\\`es, J\\'er\\^ome},title={Exploratory Multivariate Analysis by Example Using R},edition={2},publisher={CRC Press},year={2017}}"),
   le2008     = list(cite="Lê et al., 2008", apa="Lê, S., Josse, J., & Husson, F. (2008). FactoMineR: An R package for multivariate analysis. Journal of Statistical Software, 25(1), 1–18.",
-                    bib="@article{le2008,author={L\\^e, S\\'ebastien and Josse, Julie and Husson, Fran\\c{c}ois},title={{FactoMineR}: An {R} Package for Multivariate Analysis},journal={Journal of Statistical Software},volume={25},number={1},pages={1--18},year={2008}}"),
+                    bib="@article{le2008,author={L\\^e, S\\'ebastien and Josse, Julie and Husson, Fran\\c{c}ois},title={{FactoMineR}: An {R} Package for Multivariate Analysis},journal={Journal of Statistical Software},volume={25},number={1},pages={1--18},year={2008}}", url="https://doi.org/10.18637/jss.v025.i01"),
   ward1963   = list(cite="Ward, 1963", apa="Ward, J. H. (1963). Hierarchical grouping to optimize an objective function. Journal of the American Statistical Association, 58(301), 236–244.",
-                    bib="@article{ward1963,author={Ward, Joe H.},title={Hierarchical Grouping to Optimize an Objective Function},journal={Journal of the American Statistical Association},volume={58},number={301},pages={236--244},year={1963}}"),
+                    bib="@article{ward1963,author={Ward, Joe H.},title={Hierarchical Grouping to Optimize an Objective Function},journal={Journal of the American Statistical Association},volume={58},number={301},pages={236--244},year={1963}}", url="https://doi.org/10.1080/01621459.1963.10500845"),
   murtagh2014= list(cite="Murtagh & Legendre, 2014", apa="Murtagh, F., & Legendre, P. (2014). Ward’s hierarchical agglomerative clustering method: Which algorithms implement Ward’s criterion? Journal of Classification, 31(3), 274–295.",
-                    bib="@article{murtagh2014,author={Murtagh, Fionn and Legendre, Pierre},title={Ward's Hierarchical Agglomerative Clustering Method},journal={Journal of Classification},volume={31},number={3},pages={274--295},year={2014}}"),
+                    bib="@article{murtagh2014,author={Murtagh, Fionn and Legendre, Pierre},title={Ward's Hierarchical Agglomerative Clustering Method},journal={Journal of Classification},volume={31},number={3},pages={274--295},year={2014}}", url="https://doi.org/10.1007/s00357-014-9161-z"),
   macqueen1967=list(cite="MacQueen, 1967", apa="MacQueen, J. (1967). Some methods for classification and analysis of multivariate observations. Proceedings of the Fifth Berkeley Symposium on Mathematical Statistics and Probability, 1, 281–297.",
                     bib="@inproceedings{macqueen1967,author={MacQueen, James},title={Some Methods for Classification and Analysis of Multivariate Observations},booktitle={Proc. Fifth Berkeley Symp. on Math. Statist. and Prob.},volume={1},pages={281--297},year={1967}}"),
   hartigan1979=list(cite="Hartigan & Wong, 1979", apa="Hartigan, J. A., & Wong, M. A. (1979). Algorithm AS 136: A k-means clustering algorithm. Journal of the Royal Statistical Society C, 28(1), 100–108.",
-                    bib="@article{hartigan1979,author={Hartigan, J. A. and Wong, M. A.},title={Algorithm {AS} 136: A k-Means Clustering Algorithm},journal={Journal of the Royal Statistical Society. Series C},volume={28},number={1},pages={100--108},year={1979}}"),
+                    bib="@article{hartigan1979,author={Hartigan, J. A. and Wong, M. A.},title={Algorithm {AS} 136: A k-Means Clustering Algorithm},journal={Journal of the Royal Statistical Society. Series C},volume={28},number={1},pages={100--108},year={1979}}", url="https://doi.org/10.2307/2346830"),
   lebart1984 = list(cite="Lebart et al., 1984", apa="Lebart, L., Morineau, A., & Warwick, K. M. (1984). Multivariate descriptive statistical analysis. Wiley.",
                     bib="@book{lebart1984,author={Lebart, Ludovic and Morineau, Alain and Warwick, Kenneth M.},title={Multivariate Descriptive Statistical Analysis},publisher={Wiley},year={1984}}"),
   haberman1973=list(cite="Haberman, 1973", apa="Haberman, S. J. (1973). The analysis of residuals in cross-classified tables. Biometrics, 29(1), 205–220.",
-                    bib="@article{haberman1973,author={Haberman, Shelby J.},title={The Analysis of Residuals in Cross-Classified Tables},journal={Biometrics},volume={29},number={1},pages={205--220},year={1973}}"),
+                    bib="@article{haberman1973,author={Haberman, Shelby J.},title={The Analysis of Residuals in Cross-Classified Tables},journal={Biometrics},volume={29},number={1},pages={205--220},year={1973}}", url="https://doi.org/10.2307/2529686"),
   hubert1985 = list(cite="Hubert & Arabie, 1985", apa="Hubert, L., & Arabie, P. (1985). Comparing partitions. Journal of Classification, 2(1), 193–218.",
-                    bib="@article{hubert1985,author={Hubert, Lawrence and Arabie, Phipps},title={Comparing Partitions},journal={Journal of Classification},volume={2},number={1},pages={193--218},year={1985}}"),
+                    bib="@article{hubert1985,author={Hubert, Lawrence and Arabie, Phipps},title={Comparing Partitions},journal={Journal of Classification},volume={2},number={1},pages={193--218},year={1985}}", url="https://doi.org/10.1007/BF01908075"),
   rand1971   = list(cite="Rand, 1971", apa="Rand, W. M. (1971). Objective criteria for the evaluation of clustering methods. Journal of the American Statistical Association, 66(336), 846–850.",
-                    bib="@article{rand1971,author={Rand, William M.},title={Objective Criteria for the Evaluation of Clustering Methods},journal={Journal of the American Statistical Association},volume={66},number={336},pages={846--850},year={1971}}"),
+                    bib="@article{rand1971,author={Rand, William M.},title={Objective Criteria for the Evaluation of Clustering Methods},journal={Journal of the American Statistical Association},volume={66},number={336},pages={846--850},year={1971}}", url="https://doi.org/10.1080/01621459.1971.10482356"),
   efron1993  = list(cite="Efron & Tibshirani, 1993", apa="Efron, B., & Tibshirani, R. J. (1993). An introduction to the bootstrap. Chapman & Hall.",
-                    bib="@book{efron1993,author={Efron, Bradley and Tibshirani, Robert J.},title={An Introduction to the Bootstrap},publisher={Chapman \\& Hall},year={1993}}")
+                    bib="@book{efron1993,author={Efron, Bradley and Tibshirani, Robert J.},title={An Introduction to the Bootstrap},publisher={Chapman \\& Hall},year={1993}}", url="https://doi.org/10.1201/9780429246593")
 )
 
 .MCA_TECH <- list(
@@ -232,14 +232,15 @@ mca_techniques_table <- function(keys = names(.MCA_TECH)) {
                check.names = FALSE, row.names = NULL) }))
 }
 
-#' Aspect-level citation table: which source (and page) grounds which part of each technique.
+#' Aspect-level citations: which source (page) grounds which part, with a reading pointer and link.
 #' @export
 mca_citations <- function(keys = names(.MCA_TECH)) {
   do.call(rbind, lapply(keys, function(k) { t <- .MCA_TECH[[k]]
-    do.call(rbind, lapply(t$cites, function(c)
-      data.frame(Technique = t$name, Aspect = c$aspect,
-                 Source = .MCA_BIB[[c$key]]$cite, Locator = c$loc,
-                 check.names = FALSE, row.names = NULL))) }))
+    do.call(rbind, lapply(t$cites, function(c) {
+      src <- .MCA_BIB[[c$key]]$cite; loc <- c$loc
+      data.frame(Technique = t$name, Aspect = c$aspect, Source = src, Locator = loc,
+                 Reading = paste0("See ", src, if (nzchar(loc)) paste0(", ", loc) else "", " for ", c$aspect, "."),
+                 Link = .cite_url(c$key), check.names = FALSE, row.names = NULL) })) }))
 }
 
 #' Symbol glossary aggregated across techniques.
@@ -260,14 +261,33 @@ mca_code_table <- function(keys = names(.MCA_TECH)) {
                Example = t$code, check.names = FALSE, row.names = NULL) }))
 }
 
-#' Bibliography for the techniques used, APA7 or BibTeX.
+#' Resolve a citation link: stored DOI/URL, else a Google Scholar search.
+.cite_url <- function(key) { u <- .MCA_BIB[[key]]$url
+  if (is.null(u) || !nzchar(u)) paste0("https://scholar.google.com/scholar?q=",
+    utils::URLencode(.MCA_BIB[[key]]$cite, reserved = TRUE)) else u }
+
+#' Browsable/selectable reference list: key, short cite, APA7, link.
 #' @export
-mca_bibliography <- function(keys = names(.MCA_TECH), format = c("apa", "bibtex")) {
+mca_reflist <- function() {
+  r <- names(.MCA_BIB)
+  data.frame(Key = r,
+             Citation = vapply(r, function(x) .MCA_BIB[[x]]$cite, character(1)),
+             APA = vapply(r, function(x) .MCA_BIB[[x]]$apa, character(1)),
+             Link = vapply(r, .cite_url, character(1)), check.names = FALSE, row.names = NULL)
+}
+
+#' Bibliography (APA7 or BibTeX). Select by technique `keys` OR directly by reference `refs`.
+#' @param keys technique keys; @param refs explicit reference keys (overrides keys);
+#' @param format "apa" or "bibtex"; @param include_url append the link to APA entries.
+#' @export
+mca_bibliography <- function(keys = names(.MCA_TECH), refs = NULL, format = c("apa", "bibtex"), include_url = TRUE) {
   format <- match.arg(format)
-  refs <- unique(unlist(lapply(.MCA_TECH[keys], .tech_keys)))
+  if (is.null(refs)) refs <- unique(unlist(lapply(.MCA_TECH[keys], .tech_keys)))
   refs <- intersect(refs, names(.MCA_BIB))
-  out <- vapply(refs, function(r) .MCA_BIB[[r]][[if (format == "apa") "apa" else "bib"]], character(1))
-  if (format == "apa") sort(unname(out)) else unname(out)
+  if (format == "bibtex") return(unname(vapply(refs, function(r) .MCA_BIB[[r]]$bib, character(1))))
+  out <- vapply(refs, function(r) { a <- .MCA_BIB[[r]]$apa
+    if (include_url && !grepl("http", a, fixed = TRUE)) a <- paste0(a, " ", .cite_url(r)); a }, character(1))
+  sort(unname(out))
 }
 
 # ---- additional bibliography ----
