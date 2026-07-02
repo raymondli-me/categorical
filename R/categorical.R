@@ -173,6 +173,16 @@ mca_typicality <- function(fit) { stopifnot(!is.null(fit$group))
     ix <- which(gv==p); ng <- length(ix); mean(Fc[ix,d]) / sqrt((n-ng)/(ng*(n-1))*lam[d]) }))
   rownames(z) <- paste0("D",1:fit$ndim); round(z, 2) }
 
+# ---------------------------------- geometric typicality Z per CATEGORY x axis
+# Same test applied to each category's subcloud (individuals sharing the category):
+# Z = mbar / sqrt((N - n_k)/(n_k (N-1)) * lambda_d).  |Z| > 1.96 = atypical.
+mca_category_typicality <- function(fit, dims = seq_len(fit$ndim)) {
+  Fi <- fit$row_coords; Z <- fit$Z; N <- fit$n; lam <- fit$lam; cats <- colnames(Z)
+  z <- vapply(dims, function(d) vapply(seq_along(cats), function(k) {
+    ix <- which(Z[, k] == 1); nk <- length(ix)
+    mean(Fi[ix, d]) / sqrt((N - nk) / (nk * (N - 1)) * lam[d]) }, numeric(1)), numeric(length(cats)))
+  rownames(z) <- cats; colnames(z) <- paste0("D", dims); round(z, 2) }
+
 # --------------------------------------------- correlation ratio eta^2 + F + p
 mca_eta <- function(fit, B_perm = 9999, seed = 2026) { stopifnot(!is.null(fit$group))
   gg <- factor(fit$group); Gn <- nlevels(gg); n <- fit$n; W <- fit$row_coords[,1:fit$ndim,drop=FALSE]
