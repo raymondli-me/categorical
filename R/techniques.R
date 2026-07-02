@@ -396,3 +396,13 @@ mca_bibliography <- function(keys = names(.MCA_TECH), refs = NULL, format = c("a
     glossary=c("O_{ij}"="observed count","E_{ij}"="expected count","e_{ij}"="Pearson residual"),
     code_fn="mca_residuals", code="mca_residuals(fit, by = \"group\", type = \"pearson\")",
     cites=list(rf("agresti2013","","standardized residuals for contingency tables"), rf("haberman1973","","why the Pearson form is conservative")))))
+
+#' Curated one-row-per-technique overview: what it answers, the function, key citation.
+#' @export
+mca_overview <- function(keys = names(.MCA_TECH)) {
+  do.call(rbind, lapply(keys, function(k) { t <- .MCA_TECH[[k]]
+    data.frame(Technique = t$name, "What it answers" = t$brief,
+               Function = paste(t$code_fn, collapse = ", "),
+               Citation = .MCA_BIB[[.tech_keys(t)[1]]]$cite,
+               check.names = FALSE, row.names = NULL) }))
+}
