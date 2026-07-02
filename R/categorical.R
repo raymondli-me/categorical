@@ -464,12 +464,13 @@ mca_distribution <- function(fit) {
 #' @param palette cluster colours; @param main title.
 #' @return (invisibly) the hclust object.
 #' @export
-plot_dendrogram <- function(fit, k = fit$call$k, palette = NULL, main = "") {
+plot_dendrogram <- function(fit, k = fit$call$k, palette = NULL, bw = FALSE, main = "") {
   W  <- fit$row_coords[, 1:fit$ndim, drop = FALSE]
   hc <- hclust(dist(W), "ward.D2")
   K  <- nlevels(fit$clusters)
-  if (is.null(palette)) palette <- c("#1b9e77","#2c7fb8","#d95f02","#7570b3","#e7298a","#66a61e")[1:K]
-  op <- par(mar = c(1, 4.2, 2, 1)); on.exit(par(op))
+  if (bw) palette <- grDevices::grey.colors(K, start = 0.2, end = 0.65)      # B&W: distinct greys
+  else if (is.null(palette)) palette <- c("#1b9e77","#2c7fb8","#d95f02","#7570b3","#e7298a","#66a61e")[1:K]
+  op <- par(mar = c(1, 4.2, 2, 1), lwd = if (bw) 1 else 1); on.exit(par(op))
   plot(hc, labels = FALSE, hang = -1, main = main, sub = "", xlab = "",
        ylab = "Height (Ward D2)")
   stats::rect.hclust(hc, k = k, border = palette)
