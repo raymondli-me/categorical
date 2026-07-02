@@ -303,6 +303,7 @@ plot_scree <- function(fit, keep = fit$ndim, n_show = 10, col_keep = "grey30", c
 #' @param ellipse_topk k for the signature ellipse.
 plot_map <- function(fit, dims = c(1, 2), bw = FALSE,
                      label_mode = c("direct","off","boxed"), label_top = 3, repel = FALSE,
+                     label_offset = 0.7, legend = TRUE,
                      ellipse = c("none","centroid","signature"), ellipse_topk = 5,
                      group_path = TRUE, palette = NULL, cex_lab = 0.62, B = 1000, seed = 2026) {
   label_mode <- match.arg(label_mode); ellipse <- match.arg(ellipse)
@@ -340,20 +341,27 @@ plot_map <- function(fit, dims = c(1, 2), bw = FALSE,
   # labels
   if (label_mode != "off" && length(keep)) {
     lx <- G[keep,1]; ly <- G[keep,2]; lb <- lab[keep]
-    if (repel) { pos <- .repel(lx, ly, lb, cex_lab); segments(lx, ly, pos[,1], pos[,2], col="grey70", lwd=.5)
-      lx2 <- pos[,1]; ly2 <- pos[,2] } else { lx2 <- lx; ly2 <- ly }
-    if (label_mode == "boxed") {
-      wd <- strwidth(lb, cex=cex_lab)*1.1; ht <- strheight(lb, cex=cex_lab)*1.4
-      rect(lx2-wd/2, ly2-ht/2, lx2+wd/2, ly2+ht/2, col="white", border="grey60", lwd=.5)
-      text(lx2, ly2, lb, cex=cex_lab, col="black")
-    } else text(lx2, ly2, lb, cex=cex_lab, col="grey10", pos = if (repel) NULL else 3, offset=.3)
+    dy <- strheight("Ag", cex = cex_lab) * label_offset                 # vertical nudge above the '+'
+    if (repel) {                                                        # spread labels, leaders back to the '+'
+      pos <- .repel(lx, ly + dy, lb, cex_lab); segments(lx, ly, pos[,1], pos[,2], col="grey70", lwd=.5)
+      if (label_mode == "boxed") { wd <- strwidth(lb,cex=cex_lab)*1.1; ht <- strheight(lb,cex=cex_lab)*1.5
+        rect(pos[,1]-wd/2, pos[,2]-ht/2, pos[,1]+wd/2, pos[,2]+ht/2, col="white", border="grey60", lwd=.5) }
+      text(pos[,1], pos[,2], lb, cex=cex_lab, col=if (label_mode=="boxed") "black" else "grey10")
+    } else if (label_mode == "boxed") {                                # boxed label sitting above the '+'
+      wd <- strwidth(lb,cex=cex_lab)*1.1; ht <- strheight(lb,cex=cex_lab)*1.5; yb <- ly + dy + ht/2
+      rect(lx-wd/2, yb-ht/2, lx+wd/2, yb+ht/2, col="white", border="grey60", lwd=.5)
+      text(lx, yb, lb, cex=cex_lab, col="black")
+    } else {                                                           # plain label centred ABOVE the '+'
+      text(lx, ly + dy, lb, cex=cex_lab, col="grey10", adj=c(0.5,0))
+    }
   }
   # group barycentre path
   if (group_path && !is.null(fit$group)) { gs <- sort(unique(fit$group))
     cen <- t(sapply(gs, function(p) colMeans(Fc[fit$group == p, , drop = FALSE])))
     lines(cen, lwd = 2); points(cen, pch = 21, bg = "white", cex = 2.2, lwd = 1.5); text(cen, gs, cex = .7, font = 2) }
-  legend("topleft", legend = paste0(lv, " — ", fit$cluster_pretty[lv]),
-         col = col_c, lty = if (bw) lt_c else 1, pch = if (bw) NA else 3, lwd = 1.4, cex = .62, bty = "n")
+  if (legend)
+    legend("topleft", legend = paste0(lv, " — ", fit$cluster_pretty[lv]),
+           col = col_c, lty = if (bw) lt_c else 1, pch = if (bw) NA else 3, lwd = 1.4, cex = .62, bty = "n")
   invisible(fit)
 }
 
