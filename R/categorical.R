@@ -426,3 +426,23 @@ mca_frequencies <- function(fit, vars = fit$active, pct = TRUE, digits = 0, long
                check.names = FALSE, row.names = NULL)
   }))
 }
+
+#' Row-level hierarchical distribution: segments across group x cluster.
+#'
+#' The nested breakdown of how the segments (rows) distribute across the
+#' supplementary grouping and the clusters, with all three share denominators:
+#' within-group (rows sum 100 per group), within-cluster (per cluster), of-total.
+#'
+#' @param fit an mca_fit with a `group`.
+#' @return a long data.frame (group, cluster, n, pct_within_group, pct_within_cluster, pct_of_total).
+#' @export
+mca_distribution <- function(fit) {
+  if (is.null(fit$group)) stop("no grouping available (fit was built without `group`)")
+  tb <- table(group = fit$group, cluster = fit$clusters); N <- sum(tb)
+  long <- expand.grid(group = rownames(tb), cluster = colnames(tb), stringsAsFactors = FALSE)
+  long$n                  <- as.vector(tb)
+  long$pct_within_group   <- as.vector(round(100 * prop.table(tb, 1), 1))
+  long$pct_within_cluster <- as.vector(round(100 * prop.table(tb, 2), 1))
+  long$pct_of_total       <- as.vector(round(100 * tb / N, 1))
+  long[order(long$group, long$cluster), ]
+}
