@@ -17,3 +17,5 @@
 .env
 *.key
 *_secret*
+!man/figures/
+!man/figures/*.png
