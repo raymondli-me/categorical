@@ -31,9 +31,8 @@ plot_map(fit, ellipse = "centroid")
 `mca_run` · `mca_report` · `mca_master` · `mca_master_rows` ·
 `mca_top_dim` · `mca_top_cluster` · `mca_top_group` ·
 `mca_residuals` · `mca_typicality` · `mca_eta` · `mca_ellipses` · `mca_ari` ·
-`plot_scree` · `plot_map` · `mca_export_fig3d` · `mca_validate`
+`plot_scree` · `plot_map` · `mca_export_fig3d`
 
-`mca_validate()` optionally cross-checks against FactoMineR (agrees to machine precision).
 
 ## License
 
