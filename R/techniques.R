@@ -44,6 +44,7 @@ rf <- function(key, loc = "", aspect = "") list(key = key, loc = loc, aspect = a
   mca = list(
     name="Multiple Correspondence Analysis (MCA)",
     brief="SVD of the standardized residual matrix of the indicator (disjunctive) matrix; positions categories and individuals by co-occurrence.",
+    interpretation="Read positions relationally, not absolutely: categories near each other co-occur across segments; opposite quadrants mark mutually-exclusive profiles; a right angle from the origin suggests independence. Distance from the origin marks how distinctive a category is, and axes only mean something once read through their contributing poles.",
     formula="S = D_r^{-1/2} (P - r c^T) D_c^{-1/2};\\ \\ SVD: S = U \\Lambda^{1/2} V^T;\\ \\ F = D_r^{-1/2} U \\Lambda^{1/2},\\ G = D_c^{-1/2} V \\Lambda^{1/2}",
     algorithm=c("Build indicator matrix Z (n x J), one-hot of Q variables.","Correspondence matrix P = Z/N, row masses r, column masses c.","Standardized residuals S = D_r^{-1/2}(P - r c^T) D_c^{-1/2}.","SVD of S; eigenvalues = principal inertias.","Principal coordinates F (rows), G (columns)."),
     inputs="A data.frame of Q categorical variables.",
@@ -59,6 +60,7 @@ rf <- function(key, loc = "", aspect = "") list(key = key, loc = loc, aspect = a
   benzecri = list(
     name="Benzecri-adjusted inertia",
     brief="Corrects MCA's pessimistic eigenvalues for the block-diagonal inflation of the indicator matrix, giving interpretable variance percentages.",
+    interpretation="The raw MCA percentages badly understate the structure because the indicator coding inflates the denominator; report the Benzecri-adjusted percentages. Treat them as the share of interpretable inertia per axis, and use their cumulative value to justify how many dimensions to retain.",
     formula="\\lambda_k^{adj} = \\left(\\tfrac{Q}{Q-1}\\right)^2 \\left(\\lambda_k - \\tfrac{1}{Q}\\right)^2,\\quad \\lambda_k > 1/Q;\\ \\text{else } 0",
     algorithm=c("Keep eigenvalues above 1/Q.","Apply (Q/(Q-1))^2 (lambda - 1/Q)^2.","Re-express as % of the adjusted total."),
     inputs="Raw MCA eigenvalues, number of active variables Q.", optional_inputs=NA,
@@ -71,6 +73,7 @@ rf <- function(key, loc = "", aspect = "") list(key = key, loc = loc, aspect = a
   contrib = list(
     name="Contributions (CTR)",
     brief="How much a category contributes to an axis's inertia; contributions sum to 1 within each dimension.",
+    interpretation="Use contributions to see what BUILDS an axis: a category with CTR well above the average 1/J is a defining pole of that dimension. Because contributions sum to 1 down each axis, read them column-wise to answer 'which categories make this axis?'.",
     formula="\\mathrm{CTR}_{jk} = \\frac{m_j\\,G_{jk}^2}{\\lambda_k},\\qquad \\sum_j \\mathrm{CTR}_{jk} = 1",
     algorithm=c("Square each category coordinate on axis k.","Weight by category mass.","Divide by the axis eigenvalue."),
     inputs="Category coordinates, masses, eigenvalues.", optional_inputs=NA,
@@ -83,6 +86,7 @@ rf <- function(key, loc = "", aspect = "") list(key = key, loc = loc, aspect = a
   cos2 = list(
     name="Squared cosine (cos2, quality of representation)",
     brief="Proportion of a point's total inertia captured by an axis (an R^2-type fit); squared cosines sum to 1 across axes.",
+    interpretation="Use cos2 to see how WELL a point is shown on an axis (its quality of representation): near 1 means the axis captures almost all of that category's variance so its position is trustworthy; a low value means the category really lives on other dimensions. Read row-wise (sums to 1 across axes).",
     formula="\\cos^2_{jk} = \\frac{G_{jk}^2}{\\sum_m G_{jm}^2} = \\frac{G_{jk}^2}{d_j^2}",
     algorithm=c("Squared distance of the point to the origin.","Divide the squared coordinate on axis k by that total."),
     inputs="Category (or individual) coordinates.", optional_inputs=NA,
@@ -95,6 +99,7 @@ rf <- function(key, loc = "", aspect = "") list(key = key, loc = loc, aspect = a
   hcpc = list(
     name="Hierarchical Clustering on Principal Components (HCPC): Ward + k-means",
     brief="Ward agglomerative clustering on retained coordinates, consolidated by k-means; minimizes within-cluster inertia.",
+    interpretation="Clusters are the configurations actually occupied in the space; the between/within split (Huygens) says how much structure the partition captures, so a high between-inertia percentage means well-separated clusters. Dendrogram height at the cut shows how distinct the groups are.",
     formula="\\Delta(A,B) = \\frac{m_A m_B}{m_A + m_B}\\lVert \\bar{x}_A - \\bar{x}_B \\rVert^2;\\quad I_{total} = I_{between} + I_{within}",
     algorithm=c("Ward.D2 on the retained principal coordinates.","Cut the dendrogram at k.","k-means consolidation initialized at the Ward centroids.","Choose k by the relative inertia-gain."),
     inputs="Retained individual coordinates, k.", optional_inputs="ndim, inertia-gain k selection.",
@@ -109,6 +114,7 @@ rf <- function(key, loc = "", aspect = "") list(key = key, loc = loc, aspect = a
   kmeans = list(
     name="k-means consolidation",
     brief="Minimizes within-cluster sum of squares by alternating assignment and centroid updates; polishes the Ward partition.",
+    interpretation="Consolidation only REFINES the Ward partition (same objective via Huygens), so expect small movements at cluster boundaries, not a different solution; large movement signals an unstable Ward cut.",
     formula="\\min \\sum_{g} \\sum_{i \\in C_g} \\lVert x_i - \\mu_g \\rVert^2,\\qquad \\mu_g = \\tfrac{1}{|C_g|}\\sum_{i \\in C_g} x_i",
     algorithm=c("Initialize centroids at the Ward means.","Assign each point to its nearest centroid.","Recompute centroids as member means.","Repeat to convergence."),
     inputs="Individual coordinates, initial centroids.", optional_inputs=NA,
@@ -121,6 +127,7 @@ rf <- function(key, loc = "", aspect = "") list(key = key, loc = loc, aspect = a
   vtest = list(
     name="v-test (cluster characterization)",
     brief="Standardized gap between a category's within-cluster and overall proportion (finite-population corrected); |v|>1.96 = characteristic.",
+    interpretation="Rank categories within a cluster by v: v > 1.96 marks a category the cluster over-uses and v < -1.96 one it avoids, far more than chance. These top-v categories are the cluster's signature and how you name it.",
     formula="v = \\frac{p_{kg} - p_k}{\\sqrt{\\tfrac{p_k(1-p_k)}{n_g}\\cdot\\tfrac{N - n_g}{N - 1}}}",
     algorithm=c("Compare in-cluster to overall proportion for each category.","Standardize by the hypergeometric SE.","Rank categories by v per cluster."),
     inputs="Cluster assignment, indicator matrix.", optional_inputs=NA,
@@ -133,6 +140,7 @@ rf <- function(key, loc = "", aspect = "") list(key = key, loc = loc, aspect = a
   haberman = list(
     name="Haberman adjusted standardized residuals",
     brief="Chi-square cell residuals rescaled by their asymptotic variance to be ~N(0,1); tests which categories a group over-/under-uses.",
+    interpretation="Read each cell as a z-score of group change: d > +1.96 = the period over-uses that category, d < -1.96 = under-uses it, relative to independence. Because the adjustment inflates the raw residual, some cells cross significance that a naive Pearson residual would miss.",
     formula="d_{ij} = \\frac{O_{ij} - E_{ij}}{\\sqrt{E_{ij}(1 - n_{i\\cdot}/N)(1 - n_{\\cdot j}/N)}},\\quad E_{ij} = \\frac{n_{i\\cdot} n_{\\cdot j}}{N}",
     algorithm=c("Cross-tabulate group x category.","Expected counts under independence.","Pearson residual / sqrt(Haberman variance).","Compare |d| to 1.96."),
     inputs="Group labels, category indicator.", optional_inputs="Pearson (unadjusted) form.",
@@ -144,6 +152,7 @@ rf <- function(key, loc = "", aspect = "") list(key = key, loc = loc, aspect = a
   typicality = list(
     name="Geometric typicality test",
     brief="Tests whether a subgroup's mean position on an axis is atypical vs the whole cloud, referenced to the axis inertia; |Z|>1.96 = atypical.",
+    interpretation="Ask whether a subgroup sits atypically far along an axis relative to the whole cloud: |Z| > 1.96 means its mean on that dimension is not chance. It localizes WHERE (which axis) a group is distinctive.",
     formula="Z = \\frac{\\bar{y}_p}{\\sqrt{V}},\\qquad V = \\frac{N - n_p}{n_p (N - 1)}\\,\\lambda_d,\\qquad Z \\sim N(0,1)",
     algorithm=c("Subgroup mean coordinate on axis d.","Typicality variance from eigenvalue and subgroup size.","Standardize."),
     inputs="Individual coordinates, subgroup labels, eigenvalues.", optional_inputs=NA,
@@ -155,6 +164,7 @@ rf <- function(key, loc = "", aspect = "") list(key = key, loc = loc, aspect = a
   eta_perm = list(
     name="Correlation ratio (eta^2) with permutation test",
     brief="Inertia explained by a grouping (between/total), tested by permutation since MCA coordinates are non-normal; reports eta^2, F, permutation p.",
+    interpretation="eta^2 is the share of the cloud's inertia explained by the grouping, an effect size not just a p-value. A small eta^2 with a significant permutation p (common at large n) means the grouping matters but only mildly reshapes the space: reweighting within a stable structure, not reorganization of it.",
     formula="\\eta^2 = \\frac{\\sum_g n_g \\lVert \\bar{x}_g - \\bar{x}\\rVert^2}{\\sum_i \\lVert x_i - \\bar{x}\\rVert^2};\\ F = \\frac{\\eta^2/(G-1)}{(1-\\eta^2)/(N-G)};\\ p = \\frac{1 + \\#\\{\\eta^{2*}_b \\ge \\eta^2\\}}{B+1}",
     algorithm=c("Between/total inertia -> eta^2.","Form F.","Permute labels B times; count exceedances for p."),
     inputs="Individual coordinates, grouping.", optional_inputs="Number of permutations B.",
@@ -166,6 +176,7 @@ rf <- function(key, loc = "", aspect = "") list(key = key, loc = loc, aspect = a
   ellipses = list(
     name="Bootstrap confidence ellipses",
     brief="Nonparametric 95% regions for each group's mean, from the covariance of bootstrapped centroids; overlap by Mahalanobis boundary test.",
+    interpretation="Overlap is the decision rule: if two groups' 95% ellipses overlap, their mean positions are not distinguishable; if one ellipse contains the other's centre, they clearly differ. Ellipse size reflects sampling uncertainty in the centroid, not the spread of the group.",
     formula="\\hat{\\mu} = \\tfrac{1}{B}\\sum_b \\bar{x}^{*b},\\ \\hat{S} = \\mathrm{cov}(\\bar{x}^{*b});\\ (y-\\hat\\mu)^T \\hat{S}^{-1} (y-\\hat\\mu) \\le \\chi^2_{2,0.95}",
     algorithm=c("Resample each group with replacement B times.","Take the bootstrap centroid.","Mean and covariance of centroids.","Draw the 95% ellipse; test overlap via Mahalanobis distance."),
     inputs="Individual coordinates, grouping, dimension pair.", optional_inputs="topk (signature ellipse), B.",
@@ -178,6 +189,7 @@ rf <- function(key, loc = "", aspect = "") list(key = key, loc = loc, aspect = a
   ari = list(
     name="Adjusted Rand Index (ARI)",
     brief="Chance-corrected agreement between two partitions; 1 = identical, ~0 = chance, < 0 = worse than chance.",
+    interpretation="Read ARI as how far from chance toward identical two clusterings are: 1 identical, 0 chance, and e.g. 0.80 = 80 percent of the achievable-above-chance agreement. Use it to show a partition is robust to an analytic choice.",
     formula="\\mathrm{ARI} = \\frac{\\sum_{ij}\\binom{n_{ij}}{2} - \\frac{[\\sum_i\\binom{a_i}{2}][\\sum_j\\binom{b_j}{2}]}{\\binom{n}{2}}}{\\tfrac{1}{2}[\\sum_i\\binom{a_i}{2} + \\sum_j\\binom{b_j}{2}] - \\frac{[\\sum_i\\binom{a_i}{2}][\\sum_j\\binom{b_j}{2}]}{\\binom{n}{2}}}",
     algorithm=c("Cross-tabulate the two partitions.","Observed agreeing pairs minus expected-by-chance.","Normalize by max-minus-chance."),
     inputs="Two equal-length cluster-label vectors.", optional_inputs=NA,
@@ -190,6 +202,7 @@ rf <- function(key, loc = "", aspect = "") list(key = key, loc = loc, aspect = a
   specific_mca = list(
     name="Specific MCA",
     brief="Excludes rare/junk categories from the axis computation (full margins kept) so they don't warp the map; they can be projected as supplementary.",
+    interpretation="Compare a specific-MCA solution to the full one to show rare categories were not distorting the map; near-identical eigenvalues/coordinates and a high ARI mean the threshold choice is inconsequential. Excluded categories can still be read as supplementary points.",
     formula="d^2(x,y) = \\sum_j \\tfrac{1}{c_j}(x_j - y_j)^2\\ \\Rightarrow\\ \\text{drop passive } j;\\quad F_{is} = \\tfrac{1}{\\sqrt{\\lambda_s}}\\tfrac{1}{Q}\\sum_{j\\in J_i} G_{js}",
     algorithm=c("Flag categories below a frequency threshold (n<10 or 5%).","SVD only the active columns, using full margins.","Optionally project excluded categories via the transition formulas."),
     inputs="Indicator matrix, exclusion threshold min_n.", optional_inputs="Supplementary projection.",
@@ -256,3 +269,110 @@ mca_bibliography <- function(keys = names(.MCA_TECH), format = c("apa", "bibtex"
   out <- vapply(refs, function(r) .MCA_BIB[[r]][[if (format == "apa") "apa" else "bib"]], character(1))
   if (format == "apa") sort(unname(out)) else unname(out)
 }
+
+# ---- additional bibliography ----
+.MCA_BIB <- c(.MCA_BIB, list(
+  dillon1984 = list(cite="Dillon & Goldstein, 1984", apa="Dillon, W. R., & Goldstein, M. (1984). Multivariate analysis: Methods and applications. Wiley.",
+                    bib="@book{dillon1984,author={Dillon, William R. and Goldstein, Matthew},title={Multivariate Analysis: Methods and Applications},publisher={Wiley},year={1984}}"),
+  agresti2013= list(cite="Agresti, 2013", apa="Agresti, A. (2013). Categorical data analysis (3rd ed.). Wiley.",
+                    bib="@book{agresti2013,author={Agresti, Alan},title={Categorical Data Analysis},edition={3},publisher={Wiley},year={2013}}"),
+  benzecri1979=list(cite="Benzecri, 1979", apa="Benzécri, J.-P. (1979). Sur le calcul des taux d'inertie dans l'analyse d'un questionnaire. Cahiers de l'Analyse des Données, 4(3), 377–378.",
+                    bib="@article{benzecri1979,author={Benz\\'ecri, Jean-Paul},title={Sur le calcul des taux d'inertie dans l'analyse d'un questionnaire},journal={Cahiers de l'Analyse des Donn\\'ees},volume={4},number={3},pages={377--378},year={1979}}")))
+
+# ---- additional techniques ----
+.MCA_TECH <- c(.MCA_TECH, list(
+  indicator = list(
+    name="Indicator (disjunctive) matrix and the Burt table",
+    brief="The 0/1 one-hot encoding of Q categorical variables that MCA decomposes; the Burt matrix B = Z^T Z is the table of all two-way cross-tabs.",
+    interpretation="Everything downstream is a transformation of Z: masses are its margins and inertia is its departure from independence. Its block-diagonal structure (each variable perfectly predicts itself) is exactly what inflates the raw eigenvalues and motivates the Benzecri correction.",
+    formula="Z \\in \\{0,1\\}^{n\\times J},\\ \\sum_j Z_{ij}=Q;\\quad B = Z^T Z",
+    algorithm=c("One-hot each of the Q variables.","Concatenate to the n x J indicator matrix Z.","Optionally form the Burt matrix B = Z^T Z."),
+    inputs="Q categorical variables.", optional_inputs=NA,
+    outputs="Indicator matrix Z (and Burt matrix B).", optional_outputs=NA,
+    glossary=c("Z"="indicator (disjunctive) matrix","Q"="active variables","J"="total categories","B"="Burt matrix Z^T Z"),
+    code_fn="mca_run", code="fit$Z   # the active indicator matrix",
+    cites=list(rf("leroux2010","ch. 2","indicator vs Burt coding of the questionnaire"), rf("greenacre2006","","disjunctive coding and its consequences"))),
+
+  chisq_distance = list(
+    name="Chi-square distance",
+    brief="The metric MCA uses between profiles: squared category-wise differences weighted by the inverse of the column mass, so rare categories weigh heavily.",
+    interpretation="This weighting is why rare categories can dominate the map: a category present in 2 percent of segments contributes about 1/0.02 = 50x more to a distance than one at 50 percent. That sensitivity is the reason for the 5 percent / n<10 rule and specific MCA.",
+    formula="d^2(x,y) = \\sum_{j=1}^{J} \\frac{1}{c_j}(x_j - y_j)^2",
+    algorithm=c("Take two profiles.","Square their category-wise differences.","Weight each by 1/c_j and sum."),
+    inputs="Two profiles, column masses.", optional_inputs=NA,
+    outputs="Squared distance between profiles.", optional_outputs=NA,
+    glossary=c("c_j"="column mass of category j","x_j"="profile x entry for j","y_j"="profile y entry for j"),
+    code_fn="mca_run", code="# implicit in the SVD of the standardized residual matrix",
+    cites=list(rf("greenacre2006","p. 60","how a low-mass category exaggerates the chi-square distance"), rf("leroux2010","","chi-square metric on profiles"))),
+
+  total_inertia = list(
+    name="Total inertia",
+    brief="The total variance of the table: the sum of eigenvalues, equal to chi-square / N; measures overall departure from independence.",
+    interpretation="Inertia here IS variance-as-deviation-from-independence: if rows and columns were unrelated all points would collapse to the origin and inertia would be 0. Each eigenvalue is the share carried by one axis, and percentages are shares of this total.",
+    formula="\\mathrm{Inertia} = \\sum_k \\lambda_k = \\sum_{ij} s_{ij}^2 = \\chi^2/N",
+    algorithm=c("Sum the squared standardized residuals (trace of S S^T).","Equivalently, sum the eigenvalues."),
+    inputs="Standardized residual matrix / eigenvalues.", optional_inputs=NA,
+    outputs="Total inertia; per-axis shares.", optional_outputs=NA,
+    glossary=c("s_{ij}"="standardized residual","lambda_k"="eigenvalue","chi^2"="Pearson chi-square of the table","N"="grand total"),
+    code_fn="mca_run", code="sum(fit$lam)   # total inertia",
+    cites=list(rf("greenacre2006","p. 12","principal inertias as the variance decomposition"), rf("leroux2010","","total inertia = chi-square / N"))),
+
+  huygens = list(
+    name="Inertia decomposition (Huygens' theorem)",
+    brief="Total inertia splits exactly into between-cluster and within-cluster inertia; the basis for why clustering explains anything.",
+    interpretation="Because total inertia is fixed, maximizing between-cluster inertia is identical to minimizing within-cluster inertia, the shared objective of Ward and k-means. Report between-inertia percentage as the share of structure the partition captures (higher = tighter, better-separated clusters).",
+    formula="I_{total} = I_{between} + I_{within};\\quad \\%_{between} = 100\\,I_{between}/I_{total}",
+    algorithm=c("Grand centroid and total inertia.","Between-inertia = sum of size-weighted squared centroid-to-grand distances.","Within = total - between."),
+    inputs="Coordinates, cluster assignment.", optional_inputs=NA,
+    outputs="Between/within inertia and the between percentage.", optional_outputs=NA,
+    glossary=c("I_{total}"="total inertia","I_{between}"="between-cluster inertia","I_{within}"="within-cluster inertia"),
+    code_fn="mca_run", code="fit$between_inertia   # % of total inertia between clusters",
+    cites=list(rf("dillon1984","","the Huygens inertia identity underlying cluster analysis"), rf("husson2017","","between/within decomposition in HCPC"))),
+
+  inertia_gain = list(
+    name="Number of clusters by inertia gain",
+    brief="Chooses k where the relative gain in between-cluster inertia from adding a cluster drops off (an elbow on the dendrogram).",
+    interpretation="Pick k at the largest gain before diminishing returns: a jump of, say, 15 percent from 3 to 4 clusters versus 5 percent from 4 to 5 argues for four. It is the clustering analogue of the scree elbow.",
+    formula="\\mathrm{gain}(k) = \\%_{between}(k) - \\%_{between}(k-1)",
+    algorithm=c("Cut the Ward tree at successive k.","Record between-inertia percentage at each k.","Choose k at the last large gain."),
+    inputs="Ward hierarchy, coordinates.", optional_inputs=NA,
+    outputs="Between-percentage and gain per k.", optional_outputs=NA,
+    glossary=c("gain(k)"="rise in between-inertia % when going from k-1 to k clusters"),
+    code_fn="mca_run", code="fit$gain_tab   # between-% and gain per k",
+    cites=list(rf("husson2017","","the relative inertia-gain criterion for choosing k"))),
+
+  signature = list(
+    name="Group signature (residual-weighted top-k centroid)",
+    brief="A descriptive locator placing a group at the residual-weighted mean of the categories it most over-uses; complements the plain centroid.",
+    interpretation="Where the centroid is the group's literal average position (often near the origin), the signature exaggerates toward what makes the group distinctive, so the two together separate 'where a period sits' from 'what a period is about'. It is a descriptive summary, not an inferential test.",
+    formula="\\mathbf{s}_p = \\frac{\\sum_{k\\in \\mathrm{Top}_p} e_{pk}\\,\\mathbf{g}_k}{\\sum_{k\\in \\mathrm{Top}_p} e_{pk}},\\quad e_{pk} = \\frac{O_{pk}-E_{pk}}{\\sqrt{E_{pk}}}",
+    algorithm=c("Rank a group's categories by residual e_pk.","Take the top-k (e.g. 5).","Average their coordinates weighted by the positive residuals."),
+    inputs="Indicator matrix, category coordinates, grouping, k.", optional_inputs="Bootstrap for a signature ellipse.",
+    outputs="Signature position per group.", optional_outputs="Bootstrap covariance for a signature ellipse.",
+    glossary=c("e_{pk}"="Pearson residual (weight)","g_k"="category coordinate","Top_p"="top-k over-used categories in group p"),
+    code_fn=c("mca_ellipses","mca_export_fig3d"), code="mca_ellipses(fit, dims = c(1,2), topk = 5)   # signature-based ellipse",
+    cites=list(rf("haberman1973","","the residual used as the over-representation weight"), rf("leroux2010","","mean points of subclouds in the cloud of individuals"))),
+
+  sqrt_lambda = list(
+    name="Category-scale rescaling and transition formulas",
+    brief="Rescaling principal coordinates by 1/sqrt(lambda) gives standard (category-scale) coordinates; the transition formulas project rows from columns and vice versa, enabling supplementary points.",
+    interpretation="Principal (sqrt-lambda-weighted) coordinates are for reading distances; standard (÷ sqrt-lambda) coordinates put rows and categories on a common footing so a supplementary point can be placed as the average of the active categories it carries, pushed outward by 1/sqrt(lambda). Use it to project excluded/rare categories without letting them shape the axes.",
+    formula="F^{std} = F/\\sqrt{\\lambda};\\quad F_{is}=\\tfrac{1}{\\sqrt{\\lambda_s}}\\tfrac{1}{Q}\\sum_{j\\in J_i} G_{js};\\quad G_{js}=\\tfrac{1}{\\sqrt{\\lambda_s}}\\tfrac{1}{n_j}\\sum_{i\\in I_j} F_{is}",
+    algorithm=c("Divide principal coordinates by sqrt(eigenvalue) per axis.","Place a supplementary point as the rescaled average of its active categories/individuals."),
+    inputs="Principal coordinates, eigenvalues.", optional_inputs=NA,
+    outputs="Standard coordinates; supplementary projections.", optional_outputs=NA,
+    glossary=c("lambda_s"="eigenvalue of axis s","F_{is}"="individual coordinate","G_{js}"="category coordinate","J_i"="categories chosen by i","I_j"="individuals choosing j"),
+    code_fn="mca_run", code="sweep(fit$coords, 2, sqrt(fit$lam), \"/\")   # standard (category-scale) coordinates",
+    cites=list(rf("leroux2010","ch. 3.3","the transition formulas and supplementary elements"))),
+
+  pearson_residual = list(
+    name="Pearson standardized residual",
+    brief="The unadjusted chi-square cell residual (observed - expected)/sqrt(expected); the building block of the adjusted residual and the signature weights.",
+    interpretation="A quick over/under-representation z, but conservative (its true variance is below 1), so it under-detects; prefer Haberman's adjusted residual for significance and use the Pearson form mainly as a weight or descriptive quantity.",
+    formula="e_{ij} = \\frac{O_{ij}-E_{ij}}{\\sqrt{E_{ij}}},\\quad E_{ij}=\\frac{n_{i\\cdot}n_{\\cdot j}}{N}",
+    algorithm=c("Cross-tabulate group x category.","Expected counts under independence.","(observed - expected)/sqrt(expected)."),
+    inputs="Group x category table.", optional_inputs=NA,
+    outputs="Pearson residual per cell.", optional_outputs=NA,
+    glossary=c("O_{ij}"="observed count","E_{ij}"="expected count","e_{ij}"="Pearson residual"),
+    code_fn="mca_residuals", code="mca_residuals(fit, by = \"group\", type = \"pearson\")",
+    cites=list(rf("agresti2013","","standardized residuals for contingency tables"), rf("haberman1973","","why the Pearson form is conservative")))))
