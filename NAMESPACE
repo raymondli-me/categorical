@@ -1,4 +1,4 @@
 export(mca_run, mca_residuals, mca_top_dim, mca_top_cluster, mca_top_group,
        mca_typicality, mca_eta, mca_ellipses, mca_master, mca_master_rows,
-       mca_report, mca_ari, mca_frequencies, mca_distribution, plot_scree, plot_map, mca_export_fig3d)
+       mca_report, mca_ari, mca_frequencies, mca_distribution, plot_scree, plot_map, plot_dendrogram, mca_export_fig3d)
 S3method(print, mca_fit)

@@ -446,3 +446,24 @@ mca_distribution <- function(fit) {
   long$pct_of_total       <- as.vector(round(100 * tb / N, 1))
   long[order(long$group, long$cluster), ]
 }
+
+#' Ward (HCPC) dendrogram of the segments, with the k-cluster cut drawn.
+#'
+#' Recomputes the Ward.D2 tree on the retained MCA dimensions (deterministic,
+#' identical to the clustering in `mca_run`) and boxes the k clusters.
+#'
+#' @param fit an mca_fit; @param k clusters to box (default the fitted k);
+#' @param palette cluster colours; @param main title.
+#' @return (invisibly) the hclust object.
+#' @export
+plot_dendrogram <- function(fit, k = fit$call$k, palette = NULL, main = "") {
+  W  <- fit$row_coords[, 1:fit$ndim, drop = FALSE]
+  hc <- hclust(dist(W), "ward.D2")
+  K  <- nlevels(fit$clusters)
+  if (is.null(palette)) palette <- c("#1b9e77","#2c7fb8","#d95f02","#7570b3","#e7298a","#66a61e")[1:K]
+  op <- par(mar = c(1, 4.2, 2, 1)); on.exit(par(op))
+  plot(hc, labels = FALSE, hang = -1, main = main, sub = "", xlab = "",
+       ylab = "Height (Ward D2)")
+  stats::rect.hclust(hc, k = k, border = palette)
+  invisible(hc)
+}
