@@ -249,6 +249,27 @@ mca_supplementary <- function(fit, vars = NULL) {
       out })) }))
 }
 
+# robustness of a set of fits (same N segments) vs a reference: cluster agreement
+# (ARI) AND axis-configuration stability (RV coefficient, per-axis correlation,
+# Benzecri variance shares). Requires the same segments in the same order.
+mca_robustness <- function(fits, reference = 1) {
+  if (is.null(names(fits))) names(fits) <- paste0("fit", seq_along(fits))
+  ref <- fits[[reference]]; nd <- ref$ndim
+  rv <- function(X, Y) { X <- scale(X, scale = FALSE); Y <- scale(Y, scale = FALSE)
+    S <- tcrossprod(X); Tt <- tcrossprod(Y); sum(S * Tt) / sqrt(sum(S * S) * sum(Tt * Tt)) }
+  do.call(rbind, lapply(seq_along(fits), function(i) {
+    f <- fits[[i]]; same <- isTRUE(f$n == ref$n)
+    ari <- if (same) round(mca_ari(ref$clusters, f$clusters), 3) else NA
+    rvc <- if (same) round(rv(ref$row_coords[, 1:nd, drop = FALSE], f$row_coords[, 1:nd, drop = FALSE]), 4) else NA
+    cc  <- if (same) vapply(1:nd, function(d) round(cor(ref$row_coords[, d], f$row_coords[, d]), 3), numeric(1)) else rep(NA_real_, nd)
+    df <- data.frame(fit = names(fits)[i], n = f$n, categories = f$n_cats,
+                     benzecri = paste(f$inertia$pct_benzecri[1:nd], collapse = "/"),
+                     ARI = ari, RV = rvc, check.names = FALSE, row.names = NULL)
+    for (d in 1:nd) df[[paste0("corr_D", d)]] <- cc[d]
+    df$note <- if (i == reference) "reference" else if (!same) "different N: not comparable" else ""
+    df }))
+}
+
 # k-means consolidation convergence report (as a small key/value table).
 mca_kmeans_info <- function(fit) {
   k <- fit$kmeans
